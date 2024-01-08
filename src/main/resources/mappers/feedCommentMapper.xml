@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.green.greengram4.feed.feedcomment.FeedCommentMapper">
+
+    <insert id="insFeedComment" useGeneratedKeys="true" keyProperty="ifeedComment">
+        insert into t_feed_comment (ifeed, iuser, comment)
+        values (#{ifeed}, #{iuser}, #{comment})
+    </insert>
+
+    <select id="selFeedCommentAll">
+<!--        pk, 댓글 내용, 댓글 작성 일자, 작성자 pk, 작성자 이름, 작성자 프로필사진, (페이징 처리)-->
+
+        select C.ifeed_comment AS ifeedComment, C.comment, C.iuser as writerIuser, U.nm as writerNm, U.pic as writerPic,
+        C.created_at as createdAt
+        from t_feed_comment C
+        JOIN t_user U
+        ON C.iuser = U.iuser AND C.ifeed = #{ifeed}
+        LIMIT #{startIdx}, #{rowCount}
+     </select>
+
+</mapper>

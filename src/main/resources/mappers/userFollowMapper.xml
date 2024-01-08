@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.green.greengram4.user.UserMapper">
+    <delete id="unfollow">
+        delete from t_user_follow
+        where from_iuser = #{fromIuser} and to_iuser = #{toIuser}
+    </delete>
+    <insert id="follow">
+        insert into t_user_follow (from_iuser, to_iuser)
+        values (#{fromIuser}, #{toIuser})
+    </insert>
+    <select id="selUserInfo">
+        SELECT COUNT(DISTINCT F.ifeed) AS feedCnt, COUNT(FA.ifeed) AS FavCnt,
+        U.nm, U.created_at AS createdAt, U.pic, SQ.FOLLOWING , SQ.follower, SQ.followState
+        FROM t_user U
+        LEFT JOIN t_feed F ON U.iuser = F.iuser AND U.iuser = #{targetIuser}
+        LEFT JOIN t_feed_fav FA ON F.ifeed = FA.ifeed
+        JOIN (
+        SELECT
+        SUM(if(from_iuser = #{targetIuser}, 1, 0)) AS FOLLOWING,
+        SUM(if(to_iuser = #{targetIuser}, 1, 0)) AS follower,
+        (
+        SUM(if(from_iuser = #{loginedIuser} AND to_iuser = #{targetIuser}, 1, 0)) +
+        SUM(if(from_iuser = #{targetIuser} AND to_iuser = #{loginedIuser}, 2, 0))
+        ) AS followState
+        FROM t_user_follow
+        ) AS SQ
+        WHERE U.iuser = #{targetIuser}
+    </select>
+</mapper>

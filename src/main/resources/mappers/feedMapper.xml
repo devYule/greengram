@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.green.greengram4.feed.FeedMapper">
+    <insert id="insertFeed" useGeneratedKeys="true" keyProperty="ifeed">
+        insert into t_feed (iuser, contents, location)
+        values (#{iuser}, #{contents}, #{location})
+    </insert>
+
+
+<!--
+        ** getFeeds
+        전체 검색
+        &
+        프로필 검색 (#{targetIuser})
+        &
+        내가 좋아요한 게시물 (#{isFavList})
+-->
+    <select id="getFeeds">
+        select F.ifeed, F.contents, F.location, F.created_at as createdAt,
+        U.iuser as writerIuser, U.nm as writerNm, U.pic as writerPic,
+        if(FA.iuser > 0, 1, 0) as isFav
+        from t_feed F
+        join t_user U on F.iuser = U.iuser
+        <choose>
+            <when test="isFavList == 1">
+                join t_feed_fav FA on F.ifeed = FA.ifeed and FA.iuser = #{loginedIuser}
+            </when>
+            <otherwise>
+                left join t_feed_fav FA on F.ifeed = FA.ifeed and FA.iuser = #{loginedIuser}
+            </otherwise>
+        </choose>
+        <where>
+            <if test="isFavList == 0 and targetIuser > 0">
+                U.iuser = #{targetIuser}
+            </if>
+        </where>
+        order by F.ifeed desc
+        limit #{startIdx}, #{rowCount}
+    </select>
+
+<!--
+        void delExtra(FeedDelDto feedDelDto);
+        int delFeed(FeedDelDto feedDelDto);
+-->
+    <select id="isExists">
+        select count(*) from t_feed where ifeed = #{ifeed} and iuser = #{iuser}
+    </select>
+
+    <delete id="delExtra">
+        delete C, FA, P
+        from t_feed F
+        left join t_feed_comment C on F.ifeed = C.ifeed
+        left join t_feed_fav FA on F.ifeed = FA.ifeed
+        left join t_feed_pics P on F.ifeed = P.ifeed
+        where F.ifeed = #{ifeed} and F.iuser = #{iuser}
+    </delete>
+
+    <delete id="delFeed">
+        delete from t_feed
+        where ifeed = #{ifeed} and iuser = #{iuser}
+    </delete>
+</mapper>
