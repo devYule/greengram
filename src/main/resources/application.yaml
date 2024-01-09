@@ -20,3 +20,13 @@ fcm:
 #  level:
 #    com.green.greengram4.user: debug
 #    com.green.greengram4.feed: debug
+
+
+#커스텀 암호화 키
+app:
+  jwt:
+    secret: DaeguGreenArtAcademyClass502RoomForJavaSpringBootFighting
+    header-schema-name: authorization
+    token-type: Bearer
+    access-token-expiry: 7200000
+    refresh-token-expiry: 1296000000
