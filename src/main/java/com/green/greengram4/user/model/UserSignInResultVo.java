@@ -8,6 +8,7 @@ public class UserSignInResultVo {
     private int iuser;
     private String nm;
     private String pic;
+    private String accessToken;
 
     public void setExtra(UserEntity userEntity) {
         this.iuser = userEntity.getIuser();

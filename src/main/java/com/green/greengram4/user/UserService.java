@@ -2,10 +2,12 @@ package com.green.greengram4.user;
 
 import com.green.greengram4.common.Const;
 import com.green.greengram4.common.ResVo;
+import com.green.greengram4.security.JwtTokenProvider;
+import com.green.greengram4.security.MyPrincipal;
 import com.green.greengram4.user.model.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.mindrot.jbcrypt.BCrypt;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -15,10 +17,14 @@ public class UserService {
 
     private final UserMapper mapper;
 
+    private final PasswordEncoder passwordEncoder;
+    private final JwtTokenProvider jwtTokenProvider;
+
+
     public ResVo signup(UserSignupDto dto) {
 
         // 비밀번호 암호화
-        String hashedUpw = BCrypt.hashpw(dto.getUpw(), BCrypt.gensalt());
+        String hashedUpw = passwordEncoder.encode(dto.getUpw());
         UserSignUpEntity userSignUpEntity = new UserSignUpEntity(dto, hashedUpw);
 
 
@@ -48,14 +54,24 @@ public class UserService {
 
         // compare password (use BCrypt)
 
-        if (BCrypt.checkpw(userSignInDto.getUpw(), result.getUpw())) {
+        if (!passwordEncoder.matches(userSignInDto.getUpw(), result.getUpw())) {
 
-            userSignInResultVo.setResult(Const.LOGIN_SUCCEED);
-            userSignInResultVo.setExtra(result);
+            userSignInResultVo.setResult(Const.LOGIN_FAIL_PASSWORD_IS_NOT_CORRECT);
             return userSignInResultVo;
+
+
         }
-        userSignInResultVo.setResult(Const.LOGIN_FAIL_PASSWORD_IS_NOT_CORRECT);
+        MyPrincipal myPrincipal = new MyPrincipal(result.getIuser());
+        String at = jwtTokenProvider.generateAccessToken(myPrincipal);
+        String rt = jwtTokenProvider.generateRefreshToken(myPrincipal);
+
+        userSignInResultVo.setResult(Const.LOGIN_SUCCEED);
+        userSignInResultVo.setExtra(result);
+
+        userSignInResultVo.setAccessToken(at);
+
         return userSignInResultVo;
+
 
     }
 

@@ -5,6 +5,7 @@ import com.green.greengram4.feed.feedcomment.FeedCommentMapper;
 import com.green.greengram4.feed.feedcomment.model.FeedCommentSelDto;
 import com.green.greengram4.feed.feedcomment.model.FeedCommentSelVo;
 import com.green.greengram4.feed.model.*;
+import com.green.greengram4.security.AuthenticationFacade;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +20,12 @@ public class FeedService {
     private final FeedFavMapper favMapper;
     private final FeedCommentMapper commentMapper;
 
+    private final AuthenticationFacade authenticationFacade;
+
     public ResVo insertFeed(FeedInsDto feedInsDto) {
+        // security 이용 iuser 값 세팅
+        feedInsDto.setIuser(authenticationFacade.getLoginUserPk());
+
         InsertFeedDto insertFeedDto = new InsertFeedDto(feedInsDto);
         ResVo resVo = new ResVo();
 

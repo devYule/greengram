@@ -24,11 +24,11 @@ import java.util.Date;
  * Security 와 토큰 관련 정보를 가져오거나 생성, 해석, 만료 체크 등을 하기위한 객체.
  * 토큰 내부에 Claims 를 보유하고 있다.
  * Claims 는 저장한 정보이다.
- *
+ * <p>
  * 필요객체:
  * - MyPrincipal - 토큰에 담을 정보를 가진 객체
  * - AppProperties - application.properties || application.yaml 에 지정한 값들을 객체화 시킨 객체.
- *
+ * <p>
  * 필요 어노테이션:
  * - @Component
  * - @Autowired or @RequiredArgsConstructor
@@ -37,7 +37,19 @@ import java.util.Date;
 @Component
 @RequiredArgsConstructor
 public class JwtTokenProvider {
-
+    /**
+     * Security 와 토큰 관련 정보를 가져오거나 생성, 해석, 만료 체크 등을 하기위한 객체.
+     * 토큰 내부에 Claims 를 보유하고 있다.
+     * Claims 는 저장한 정보이다.
+     *
+     * 필요객체:
+     * - MyPrincipal - 토큰에 담을 정보를 가진 객체
+     * - AppProperties - application.properties || application.yaml 에 지정한 값들을 객체화 시킨 객체.
+     *
+     * 필요 어노테이션:
+     * - @Component
+     * - @Autowired or @RequiredArgsConstructor
+     */
     private final AppProperties appProperties;
     private Key key;
 
@@ -58,13 +70,23 @@ public class JwtTokenProvider {
      * @param tokenValidMs
      * @return
      */
-    public String generateToken(MyPrincipal principal, long tokenValidMs) {
+    private String generateToken(MyPrincipal principal, long tokenValidMs) {
         return Jwts.builder()
                 .claims(createClaims(principal))
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + tokenValidMs))
                 .signWith(key)
                 .compact();
+    }
+
+    public String generateAccessToken(MyPrincipal myPrincipal) {
+
+        return generateToken(myPrincipal, appProperties.getJwt().getAccessTokenExpiry());
+
+    }
+
+    public String generateRefreshToken(MyPrincipal myPrincipal) {
+        return generateToken(myPrincipal, appProperties.getJwt().getRefreshTokenExpiry());
     }
 
     private Claims createClaims(MyPrincipal principal) {
@@ -113,6 +135,7 @@ public class JwtTokenProvider {
 
     /**
      * 해당 토큰에서 부터 모든 정보(Claims)를 가져온다.
+     *
      * @param token
      * @return
      */
@@ -127,6 +150,7 @@ public class JwtTokenProvider {
     /**
      * Authentication 의 구현객체 반환.
      * SecurityContextHolder 에 저장하기 위한 객체 반환.
+     *
      * @param token
      * @return
      */
@@ -136,10 +160,12 @@ public class JwtTokenProvider {
         return userDetails == null ? null :
 //                                                        id           password      auth
                 new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
+        // 토큰화 시켜서 Authentication 의 자식 객체 생성
     }
 
     /**
      * 토큰에 저장시킨 정보를 모두 가져온다.
+     *
      * @param token
      * @return
      */
