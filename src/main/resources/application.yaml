@@ -30,3 +30,6 @@ app:
     token-type: Bearer
     access-token-expiry: 7200000
     refresh-token-expiry: 1296000000
+logging:
+  level:
+    root: trace

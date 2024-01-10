@@ -1,6 +1,7 @@
 package com.green.greengram4.security;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -12,6 +13,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @RequiredArgsConstructor
+@Slf4j
 public class SecurityConfiguration {
 
     /**
@@ -34,6 +36,7 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         // session 사용하지 않겠다 - 설정 (세션 끄기)
+        log.info("checkClass = {}", this.getClass());
         return httpSecurity.sessionManagement(authz -> authz.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .httpBasic(http -> http.disable()) // security 자체에서 제공하는 로그인 화면을 끈다.
                 .formLogin(formLogin -> formLogin.disable()) // form 로그인 끄기

@@ -44,6 +44,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         }
 
+        log.info("checkClass = {}", this.getClass());
         filterChain.doFilter(request, response);
     }
 }
