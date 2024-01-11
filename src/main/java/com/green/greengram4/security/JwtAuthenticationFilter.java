@@ -1,6 +1,8 @@
 package com.green.greengram4.security;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.green.greengram4.security.common.CookieUtils;
+import com.green.greengram4.user.model.UserSignInResultVo;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -34,6 +36,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      */
     private final JwtTokenProvider jwtTokenProvider;
     private final CookieUtils cookieUtils;
+    private final ObjectMapper objectMapper;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -48,9 +51,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 }
             } else {
+                /* TODO: 1/11/24
+                    이거 잘 작동되는지 체크.
+                    --by Hyunmin */
                 Cookie cookie = cookieUtils.getCookie(request, "rt");
                 if (cookie != null) {
-                    cookie.getValue()
+                    String value = cookie.getValue();
+                    MyPrincipal myPrincipal = ((MyUserDetails) jwtTokenProvider.getUserDetailsFromToken(value)).getMyPrincipal();
+                    response.setStatus(600);
+                    response.getWriter().write(objectMapper.writeValueAsString(UserSignInResultVo.builder().result(1).accessToken(jwtTokenProvider.generateAccessToken(myPrincipal)).build()));
+                    return;
                 }
             }
         }
