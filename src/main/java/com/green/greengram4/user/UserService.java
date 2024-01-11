@@ -4,7 +4,10 @@ import com.green.greengram4.common.Const;
 import com.green.greengram4.common.ResVo;
 import com.green.greengram4.security.JwtTokenProvider;
 import com.green.greengram4.security.MyPrincipal;
+import com.green.greengram4.security.common.AppProperties;
+import com.green.greengram4.security.common.CookieUtils;
 import com.green.greengram4.user.model.*;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,6 +22,9 @@ public class UserService {
 
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
+    private final AppProperties appProperties;
+    private final CookieUtils cookieUtils;
+
 
 
     public ResVo signup(UserSignupDto dto) {
@@ -36,7 +42,7 @@ public class UserService {
 
 
     // result -> 1: 성공 || 2: 아이디 없음 || 3: 비밀번호 틀림
-    public UserSignInResultVo signin(UserSignInDto userSignInDto) {
+    public UserSignInResultVo signin(UserSignInDto userSignInDto, HttpServletResponse response) {
 
         // get upw, pic, nm, iuser from db
         UserSelDto userSelDto = new UserSelDto();
@@ -64,6 +70,12 @@ public class UserService {
         MyPrincipal myPrincipal = new MyPrincipal(result.getIuser());
         String at = jwtTokenProvider.generateAccessToken(myPrincipal);
         String rt = jwtTokenProvider.generateRefreshToken(myPrincipal);
+
+
+        int rtCookieMaxAge = (int) (appProperties.getJwt().getRefreshTokenExpiry() * 0.001);
+        cookieUtils.deleteCookie(response, "rt");
+        cookieUtils.setCookie(response, "rt", rt, rtCookieMaxAge);
+
 
         userSignInResultVo.setResult(Const.LOGIN_SUCCEED);
         userSignInResultVo.setExtra(result);
@@ -99,5 +111,10 @@ public class UserService {
 
     public ResVo patchUserPic(UserPicPatchDto dto) {
         return new ResVo(mapper.patchUserPic(dto));
+    }
+
+    public ResVo signout(HttpServletResponse response) {
+        cookieUtils.deleteCookie(response, "rt");
+        return new ResVo(1);
     }
 }

@@ -32,4 +32,4 @@ app:
     refresh-token-expiry: 1296000000
 logging:
   level:
-    root: trace
+    -com.green.greengram4: debug

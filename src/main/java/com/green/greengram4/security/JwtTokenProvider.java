@@ -5,8 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.green.greengram4.security.common.AppProperties;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +15,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import java.security.Key;
+import javax.crypto.spec.SecretKeySpec;
 import java.util.Date;
 
 
@@ -37,30 +36,32 @@ import java.util.Date;
 @Component
 @RequiredArgsConstructor
 public class JwtTokenProvider {
+
     /**
      * Security 와 토큰 관련 정보를 가져오거나 생성, 해석, 만료 체크 등을 하기위한 객체.
      * 토큰 내부에 Claims 를 보유하고 있다.
      * Claims 는 저장한 정보이다.
-     *
+     * <p>
      * 필요객체:
      * - MyPrincipal - 토큰에 담을 정보를 가진 객체
      * - AppProperties - application.properties || application.yaml 에 지정한 값들을 객체화 시킨 객체.
-     *
+     * <p>
      * 필요 어노테이션:
      * - @Component
      * - @Autowired or @RequiredArgsConstructor
      */
     private final AppProperties appProperties;
-    private Key key;
+
 
     private final ObjectMapper objectMapper;
+    private SecretKeySpec spec;
 
     @PostConstruct
     public void init() {
-        log.info("secret = {}", appProperties.getJwt().getSecret());
-        byte[] keyBytes = Decoders.BASE64.decode(appProperties.getJwt().getSecret());
-        log.info("key bytes = {}", keyBytes);
-        this.key = Keys.hmacShaKeyFor(keyBytes);
+
+        this.spec = new SecretKeySpec(appProperties.getJwt().getSecret().getBytes()
+                , SignatureAlgorithm.HS256.getJcaName());
+
     }
 
     /**
@@ -75,7 +76,7 @@ public class JwtTokenProvider {
                 .claims(createClaims(principal))
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + tokenValidMs))
-                .signWith(key)
+                .signWith(spec)
                 .compact();
     }
 
@@ -141,10 +142,10 @@ public class JwtTokenProvider {
      */
     private Claims getAllClaims(String token) {
         return Jwts.parser()
-                .setSigningKey(key)
+                .verifyWith(spec)
                 .build()
-                .parseClaimsJws(token)
-                .getBody();
+                .parseSignedClaims(token)
+                .getPayload();
     }
 
     /**
@@ -156,13 +157,10 @@ public class JwtTokenProvider {
      */
     public Authentication getAuthentication(String token) {
         UserDetails userDetails = getUserDetailsFromToken(token);
-
-        return userDetails == null ? null :
 //                                                        id           password      auth
-                new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
+        return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
         // 토큰화 시켜서 Authentication 의 자식 객체 생성
     }
-
     /**
      * 토큰에 저장시킨 정보를 모두 가져온다.
      *
@@ -183,6 +181,6 @@ public class JwtTokenProvider {
         return new MyUserDetails(myPrincipal);
 
     }
-
-
 }
+
+
