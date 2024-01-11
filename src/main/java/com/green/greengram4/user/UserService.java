@@ -4,9 +4,12 @@ import com.green.greengram4.common.Const;
 import com.green.greengram4.common.ResVo;
 import com.green.greengram4.security.JwtTokenProvider;
 import com.green.greengram4.security.MyPrincipal;
+import com.green.greengram4.security.MyUserDetails;
 import com.green.greengram4.security.common.AppProperties;
 import com.green.greengram4.security.common.CookieUtils;
 import com.green.greengram4.user.model.*;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +29,6 @@ public class UserService {
     private final CookieUtils cookieUtils;
 
 
-
     public ResVo signup(UserSignupDto dto) {
 
         // 비밀번호 암호화
@@ -42,7 +44,7 @@ public class UserService {
 
 
     // result -> 1: 성공 || 2: 아이디 없음 || 3: 비밀번호 틀림
-    public UserSignInResultVo signin(UserSignInDto userSignInDto, HttpServletResponse response) {
+    public UserSignInResultVo signin(UserSignInVo userSignInDto, HttpServletResponse response) {
 
         // get upw, pic, nm, iuser from db
         UserSelDto userSelDto = new UserSelDto();
@@ -116,5 +118,18 @@ public class UserService {
     public ResVo signout(HttpServletResponse response) {
         cookieUtils.deleteCookie(response, "rt");
         return new ResVo(1);
+    }
+
+    public UserSignInResultVo getRefreshToken(HttpServletRequest request) {
+        Cookie cookie = cookieUtils.getCookie(request, "rt");
+        if (cookie == null) return UserSignInResultVo.builder().result(0).accessToken(null).build();
+        String token = cookie.getValue();
+        MyUserDetails myUserDetails = (MyUserDetails) jwtTokenProvider.getUserDetailsFromToken(token);
+        MyPrincipal myPrincipal = myUserDetails.getMyPrincipal();
+
+        return UserSignInResultVo.builder()
+                .result(1)
+                .accessToken(jwtTokenProvider.generateAccessToken(myPrincipal))
+                .build();
     }
 }

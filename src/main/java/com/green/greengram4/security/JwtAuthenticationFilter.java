@@ -36,11 +36,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String token = jwtTokenProvider.getTokenFromHeader(request);
         log.info("JwtAuthentication-Token = {}", token);
-        if (token != null && jwtTokenProvider.isValidatedToken(token)) {
-            // 저장 (SecurityContextHolder 에 저장 - 해당 Holder 에는 각 요청별로 정보(Authentication)를 담을 수 있는 공간이 있다.)
-            Authentication auth = jwtTokenProvider.getAuthentication(token);
-            if (auth != null) {
-                SecurityContextHolder.getContext().setAuthentication(auth);
+        if (token != null) {
+            if (jwtTokenProvider.isValidatedToken(token)) {
+                // 저장 (SecurityContextHolder 에 저장 - 해당 Holder 에는 각 요청별로 정보(Authentication)를 담을 수 있는 공간이 있다.)
+                Authentication auth = jwtTokenProvider.getAuthentication(token);
+                if (auth != null) {
+                    SecurityContextHolder.getContext().setAuthentication(auth);
+
+                }
             }
         }
 

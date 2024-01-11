@@ -51,7 +51,8 @@ public class SecurityConfiguration {
                                         "/",
                                         "/swagger.html", // swagger 허용
                                         "/swagger-ui/**", // swagger 허용
-                                        "v3/api-docs/**") // swagger 허용
+                                        "v3/api-docs/**", // swagger 허용
+                                        "/api/user/refresh-token")
                                 .permitAll() // 해당 url 의 요청은 인증, 인가 없이 패스 (permit All)
 /*
                           .requestMatchers(HttpMethod.GET, "url").permitAll()) // 해당 메소드의 url 에 허용

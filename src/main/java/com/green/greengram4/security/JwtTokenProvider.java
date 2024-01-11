@@ -167,7 +167,7 @@ public class JwtTokenProvider {
      * @param token
      * @return
      */
-    private UserDetails getUserDetailsFromToken(String token) {
+    public UserDetails getUserDetailsFromToken(String token) {
         // 토큰 다 가져옴
         Claims claims = getAllClaims(token);
         String json = (String) claims.get("user");
