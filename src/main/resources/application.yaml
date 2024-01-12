@@ -4,6 +4,13 @@ spring:
     driver-class-name: org.mariadb.jdbc.Driver
     username: root
     password: green502
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 15MB
+
+file:
+  dir: D:/download/greengram4/
 
 mybatis:
   mapper-locations: mappers/**/*.xml

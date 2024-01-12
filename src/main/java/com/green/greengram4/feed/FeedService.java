@@ -30,9 +30,9 @@ public class FeedService {
         ResVo resVo = new ResVo();
 
         if (mapper.insertFeed(insertFeedDto) == 0) return resVo;
-        InsertPicDto insertPicDto = new InsertPicDto(insertFeedDto.getIfeed(), feedInsDto.getPics());
+//        InsertPicDto insertPicDto = new InsertPicDto(insertFeedDto.getIfeed(), feedInsDto.getPics());
 
-        if (picsMapper.insertPic(insertPicDto) == 0) return resVo;
+//        if (picsMapper.insertPic(insertPicDto) == 0) return resVo;
 
         resVo.setResult(insertFeedDto.getIfeed());
 

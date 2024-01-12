@@ -29,6 +29,7 @@ public class UserController {
 
         log.info("userSignInDto = {}", userSignInDto);
         return service.signin(userSignInDto, response);
+
     }
 
     @PostMapping("/signout")
