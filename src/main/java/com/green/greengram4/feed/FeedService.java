@@ -6,9 +6,12 @@ import com.green.greengram4.feed.feedcomment.model.FeedCommentSelDto;
 import com.green.greengram4.feed.feedcomment.model.FeedCommentSelVo;
 import com.green.greengram4.feed.model.*;
 import com.green.greengram4.security.AuthenticationFacade;
+import com.green.greengram4.common.fileupload.MyFileUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -22,21 +25,35 @@ public class FeedService {
 
     private final AuthenticationFacade authenticationFacade;
 
-    public ResVo insertFeed(FeedInsDto feedInsDto) {
+    private final MyFileUtils myFileUtils;
+
+    public InsertPicDto insertFeed(FeedInsDto feedInsDto) {
         // security 이용 iuser 값 세팅
-        feedInsDto.setIuser(authenticationFacade.getLoginUserPk());
+        int loginUserPk = authenticationFacade.getLoginUserPk();
+        feedInsDto.setIuser(loginUserPk);
 
         InsertFeedDto insertFeedDto = new InsertFeedDto(feedInsDto);
         ResVo resVo = new ResVo();
+        mapper.insertFeed(insertFeedDto);
 
-        if (mapper.insertFeed(insertFeedDto) == 0) return resVo;
 //        InsertPicDto insertPicDto = new InsertPicDto(insertFeedDto.getIfeed(), feedInsDto.getPics());
 
 //        if (picsMapper.insertPic(insertPicDto) == 0) return resVo;
 
+        // save pics
+        String target = "feed/" + insertFeedDto.getIfeed();
+        List<String> storedFileNames = new ArrayList<>();
+        for (MultipartFile pic : feedInsDto.getPics()) {
+            storedFileNames.add(myFileUtils.transferTo(pic, target));
+        }
+
+        InsertPicDto insertPicDto = new InsertPicDto(insertFeedDto.getIfeed(), storedFileNames);
+        picsMapper.insertPic(insertPicDto);
+
+
         resVo.setResult(insertFeedDto.getIfeed());
 
-        return resVo;
+        return insertPicDto;
 
     }
 

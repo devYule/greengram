@@ -2,10 +2,8 @@ package com.green.greengram4.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.green.greengram4.security.common.CookieUtils;
-import com.green.greengram4.user.model.UserSignInResultVo;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -49,18 +47,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 if (auth != null) {
                     SecurityContextHolder.getContext().setAuthentication(auth);
 
-                }
-            } else {
-                /* TODO: 1/11/24
-                    이거 잘 작동되는지 체크.
-                    --by Hyunmin */
-                Cookie cookie = cookieUtils.getCookie(request, "rt");
-                if (cookie != null) {
-                    String value = cookie.getValue();
-                    MyPrincipal myPrincipal = ((MyUserDetails) jwtTokenProvider.getUserDetailsFromToken(value)).getMyPrincipal();
-                    response.setStatus(600);
-                    response.getWriter().write(objectMapper.writeValueAsString(UserSignInResultVo.builder().result(1).accessToken(jwtTokenProvider.generateAccessToken(myPrincipal)).build()));
-                    return;
                 }
             }
         }

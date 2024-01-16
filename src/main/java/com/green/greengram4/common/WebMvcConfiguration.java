@@ -1,5 +1,6 @@
 package com.green.greengram4.common;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -14,8 +15,25 @@ import java.io.IOException;
  */
 @Configuration
 public class WebMvcConfiguration implements WebMvcConfigurer {
+
+    private final String imgFolder;
+
+    public WebMvcConfiguration(@Value("${file.dir}") String imgFolder) {
+        this.imgFolder = imgFolder;
+    }
+
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
+//        File absoluteFile = Paths.get(imgFolder).toFile().getAbsoluteFile();
+//        registry.addResourceHandler("/pic/**")
+//                .addResourceLocations("file:" + absoluteFile + "/");
+//          상대경로 사용할 경우 이렇게 절대경로로 변환 시켜 주어야 함.
+
+        registry.addResourceHandler("/pic/**") // 해당 url 에 대한 요청이 알맞는 어댑터가 없으면 아래 명령 수행.
+                .addResourceLocations("file:" + imgFolder); // 마지막에 '/' 필수
+                // 여기서 file: 은 외부 리소스를 말함.
+
+
         registry
                 .addResourceHandler("/**")
                 .addResourceLocations("classpath:/static/**")

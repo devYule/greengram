@@ -2,6 +2,8 @@ package com.green.greengram4.user;
 
 import com.green.greengram4.common.Const;
 import com.green.greengram4.common.ResVo;
+import com.green.greengram4.common.fileupload.MyFileUtils;
+import com.green.greengram4.security.AuthenticationFacade;
 import com.green.greengram4.security.JwtTokenProvider;
 import com.green.greengram4.security.MyPrincipal;
 import com.green.greengram4.security.MyUserDetails;
@@ -15,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @Service
@@ -27,6 +30,8 @@ public class UserService {
     private final JwtTokenProvider jwtTokenProvider;
     private final AppProperties appProperties;
     private final CookieUtils cookieUtils;
+    private final AuthenticationFacade authenticationFacade;
+    private final MyFileUtils fileUtils;
 
 
     public ResVo signup(UserSignupDto dto) {
@@ -105,14 +110,22 @@ public class UserService {
         return mapper.selUserInfo(userInfoSelDto);
     }
 
-
     public ResVo patchToken(UserFireBaseTokenPatchDto dto) {
 
         return new ResVo(mapper.patchToken(dto));
     }
 
-    public ResVo patchUserPic(UserPicPatchDto dto) {
-        return new ResVo(mapper.patchUserPic(dto));
+    public UserPicPatchDto patchUserPic(MultipartFile pic) {
+        int iuser = authenticationFacade.getLoginUserPk();
+        log.info("iuser = {}", iuser);
+        fileUtils.delFiles();
+        UserPicPatchDto dto =
+                UserPicPatchDto.builder()
+                        .iuser(iuser)
+                        .pic(fileUtils.transferTo(pic, "/user/" + iuser))
+                        .build();
+        mapper.patchUserPic(dto);
+        return dto;
     }
 
     public ResVo signout(HttpServletResponse response) {

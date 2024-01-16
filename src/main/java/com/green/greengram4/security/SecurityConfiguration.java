@@ -16,6 +16,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Slf4j
 public class SecurityConfiguration {
 
+
     /**
      * 필요 어노테이션
      * - @Configuration
@@ -42,8 +43,18 @@ public class SecurityConfiguration {
                 .formLogin(formLogin -> formLogin.disable()) // form 로그인 끄기
                 .csrf(csrf -> csrf.disable()) // 기본 제공되는 보안기법 끄기 (화면이 있으면 필요 없음으로) -> 차후 공부해보자 - csrf, cors 보안
                 .authorizeHttpRequests(auth -> auth.requestMatchers(
-                                        "api/user/signin",
+                                        "/api/user/signin",
                                         "/api/user/signup",
+                                        "/pic/**", // 피드따로, 사진 따로 요청하는 방법, 피드를 가져온 후,
+                                                     // /pics/feed/{pk}/{fileName} 으로 요청함.
+                                                     // 따라서 파일이름과 경로를 프론트에 넘겨 주어야함.
+                                        "/fimg/**",
+                                        "/profile/**",
+                                        "/profile",
+                                        "/css/**",
+                                        "/static/**",
+                                        "/feed",
+                                        "/feed/**",
                                         "/error",
                                         "/err",
                                         "/index.html",
@@ -51,7 +62,7 @@ public class SecurityConfiguration {
                                         "/",
                                         "/swagger.html", // swagger 허용
                                         "/swagger-ui/**", // swagger 허용
-                                        "v3/api-docs/**", // swagger 허용
+                                        "/v3/api-docs/**", // swagger 허용
                                         "/api/user/refresh-token")
                                 .permitAll() // 해당 url 의 요청은 인증, 인가 없이 패스 (permit All)
 /*

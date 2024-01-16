@@ -22,11 +22,12 @@ public class FeedController {
     @PostMapping
 //    public ResVo insertFeed(@RequestBody FeedInsDto feedInsDto) {
 
-    public ResVo postFeed(@RequestPart List<MultipartFile> pics, @RequestPart("dto") FeedInsDto feedInsDto) {
+    public InsertPicDto postFeed(@RequestPart List<MultipartFile> pics, @RequestPart("dto") FeedInsDto feedInsDto) {
 
         log.info("pics = {}", pics);
         log.info("dto = {}", feedInsDto);
         feedInsDto.setPics(pics);
+
         return service.insertFeed(feedInsDto);
 
     }
