@@ -28,7 +28,7 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
 //        registry.addResourceHandler("/pic/**")
 //                .addResourceLocations("file:" + absoluteFile + "/");
 //          상대경로 사용할 경우 이렇게 절대경로로 변환 시켜 주어야 함.
-
+//
         registry.addResourceHandler("/pic/**") // 해당 url 에 대한 요청이 알맞는 어댑터가 없으면 아래 명령 수행.
                 .addResourceLocations("file:" + imgFolder); // 마지막에 '/' 필수
                 // 여기서 file: 은 외부 리소스를 말함.
