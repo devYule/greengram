@@ -3,6 +3,8 @@ package com.green.greengram4.user;
 import com.green.greengram4.common.Const;
 import com.green.greengram4.common.ResVo;
 import com.green.greengram4.common.fileupload.MyFileUtils;
+import com.green.greengram4.exception.AuthErrorCode;
+import com.green.greengram4.exception.PasswordNotMatchException;
 import com.green.greengram4.security.AuthenticationFacade;
 import com.green.greengram4.security.JwtTokenProvider;
 import com.green.greengram4.security.MyPrincipal;
@@ -69,8 +71,10 @@ public class UserService {
 
         if (!passwordEncoder.matches(userSignInDto.getUpw(), result.getUpw())) {
 
-            userSignInResultVo.setResult(Const.LOGIN_FAIL_PASSWORD_IS_NOT_CORRECT);
-            return userSignInResultVo;
+            throw new PasswordNotMatchException(AuthErrorCode.VALID_PASSWORD);
+
+//            userSignInResultVo.setResult(Const.LOGIN_FAIL_PASSWORD_IS_NOT_CORRECT);
+//            return userSignInResultVo;
 
 
         }
@@ -118,13 +122,15 @@ public class UserService {
     public UserPicPatchDto patchUserPic(MultipartFile pic) {
         int iuser = authenticationFacade.getLoginUserPk();
         log.info("iuser = {}", iuser);
-        fileUtils.delFiles();
+        String path = "/user/" + iuser;
+        fileUtils.delFolderTrigger(path);
         UserPicPatchDto dto =
                 UserPicPatchDto.builder()
                         .iuser(iuser)
-                        .pic(fileUtils.transferTo(pic, "/user/" + iuser))
+                        .pic(fileUtils.transferTo(pic, path))
                         .build();
         mapper.patchUserPic(dto);
+
         return dto;
     }
 
