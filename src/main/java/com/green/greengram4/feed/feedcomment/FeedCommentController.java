@@ -6,6 +6,7 @@ import com.green.greengram4.feed.feedcomment.model.FeedCommentSelDto;
 import com.green.greengram4.feed.feedcomment.model.FeedCommentSelVo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,7 +20,11 @@ public class FeedCommentController {
 
 
     @PostMapping
-    public ResVo insFeedComment(@RequestBody FeedCommentInsDto feedCommentInsDto) {
+    public ResVo insFeedComment(@RequestBody @Validated FeedCommentInsDto feedCommentInsDto) {
+//        if (feedCommentInsDto.getIfeed() == 0 || feedCommentInsDto.getComment().isEmpty()) {
+//        if (feedCommentInsDto.getIfeed() == 0 || "".equals(feedCommentInsDto.getComment())) {
+//            throw new RestApiException(FeedErrorCode.IMPOSSIBLE_REG_COMMENT);
+//        }
         return service.insFeedComment(feedCommentInsDto);
     }
 

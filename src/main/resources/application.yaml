@@ -40,3 +40,19 @@ app:
 logging:
   level:
     -com.green.greengram4: debug
+
+
+openapi:
+  apartment:
+    base-url: http://openapi.molit.go.kr
+    data-url: OpenAPI_ToolInstallPackage/service/rest/RTMSOBJSvc/getRTMSDataSvcAptTradeDev
+    service-key: Y2UOCkD8Ilv2gViPGV33ddNTTQfRi92i8mRzUeQX%2BNgSiNTO3gp9hJZX4J6u8uXucMM6RdRBoGxMn6XHfsEzNA%3D%3D
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod2
+
+server:
+  port: 8082

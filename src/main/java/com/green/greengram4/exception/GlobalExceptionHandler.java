@@ -3,19 +3,23 @@ package com.green.greengram4.exception;
 import com.green.greengram4.common.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+
+import java.util.List;
+
+import static com.green.greengram4.exception.CommonErrorCode.INVALID_PARAMETER;
 
 @Slf4j
 @RestControllerAdvice
-public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
+public class GlobalExceptionHandler {
 
     @ExceptionHandler
     public ResponseEntity<Object> handle(IllegalArgumentException e) {
         log.warn("IllegalArgumentException", e);
 
-        return handleExceptionInternal(CommonErrorCode.INVALID_PARAMETER);
+        return handleExceptionInternal(INVALID_PARAMETER);
 
     }
 
@@ -25,10 +29,33 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(CommonErrorCode.INTERNAL_SERVER_ERROR);
     }
 
+    @ExceptionHandler
+    public ResponseEntity<Object> handle(RestApiException e) {
+        log.warn("RestApiException", e);
+        return handleExceptionInternal(e.getErrorCode(), e.getErrorCode().getMessage());
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<Object> resolve(MethodArgumentNotValidException eBase) {
+//        StringBuilder sb = new StringBuilder();
+//        List<String> messages = new ArrayList<>();
+//        eBase.getAllErrors().forEach(e1 -> {
+//            messages.add(e1.getDefaultMessage());
+//            sb.append(e1.getDefaultMessage());
+//            log.warn("error message = {}", e1);
+//        });
+//        String errorMessage = sb.toString();
+
+        List<String> errors = eBase.getBindingResult().getFieldErrors().stream()
+                .map(o -> o.getDefaultMessage()).toList();
+
+//        return handleExceptionInternal(INVALID_PARAMETER, errorMessage);
+        return handleExceptionInternal(INVALID_PARAMETER, errors.toString());
+    }
+
 //    @ExceptionHandler
-//    public ResponseEntity<Object> handle(RestApiException e) {
-//        log.warn("RestApiException", e);
-//        return handleExceptionInternal(CommonErrorCode.)
+//    public ResponseEntity<Object> handle(MethodArgumentNotValidException e) {
+//        return handleExceptionInternal(INVALID_PARAMETER);
 //    }
 
 

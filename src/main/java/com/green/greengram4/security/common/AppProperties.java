@@ -20,6 +20,7 @@ public class AppProperties {
     @Getter
     @Setter
     public class Jwt {
+
         private String secret; // 암호화 시킬 키
         private String headerSchemaName; // authorization: 의 헤더로 들어오는것을 가져오기 위해
         private String tokenType; // authorization: 의 값에 있는 앞머리 Bearer
