@@ -1,17 +1,21 @@
 package com.green.greengram4.security;
 
+import com.green.greengram4.user.model.UserEntity;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.util.Collection;
+import java.util.Map;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
 @Builder
-public class MyUserDetails implements UserDetails {
+public class MyUserDetails implements UserDetails, OAuth2User {
 
     /**
      * 필요 어노테이션
@@ -22,10 +26,18 @@ public class MyUserDetails implements UserDetails {
      * - @Builder
      */
     private MyPrincipal myPrincipal;
+    private Map<String, Object> attributes;
+    private UserEntity userEntity;
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        return myPrincipal == null ? null :
+                myPrincipal.getRoles()
+                        .stream()
+                        .map(r -> new SimpleGrantedAuthority("ROLE_" + r))
+                        // security 에서는 앞에 'ROLE_' 접두사가 필수
+                        .toList();
     }
 
     @Override
@@ -33,9 +45,15 @@ public class MyUserDetails implements UserDetails {
         return null;
     }
 
+    // 소셜 로그인은 security 의 루틴을 따르기 때문에 null 을 리턴하면 안됨.
     @Override
     public String getUsername() {
+        if (this.userEntity != null && userEntity.getUid() != null) {
+            return userEntity.getUid();
+
+        }
         return null;
+
     }
 
     @Override
@@ -56,5 +74,10 @@ public class MyUserDetails implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    @Override
+    public String getName() {
+        return null;
     }
 }

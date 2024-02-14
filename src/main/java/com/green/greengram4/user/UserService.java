@@ -21,6 +21,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Optional;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -78,7 +80,15 @@ public class UserService {
 
 
         }
-        MyPrincipal myPrincipal = new MyPrincipal(result.getIuser());
+//        MyPrincipal myPrincipal = new MyPrincipal(result.getIuser(), List.of(result.getRole()));
+        MyPrincipal myPrincipal = MyPrincipal.builder()
+                .iuser(result.getIuser())
+//                .roles(List.of(result.getRole()))
+                .build();
+        myPrincipal.getRoles().add(result.getRole());
+
+
+
         String at = jwtTokenProvider.generateAccessToken(myPrincipal);
         String rt = jwtTokenProvider.generateRefreshToken(myPrincipal);
 
@@ -140,9 +150,11 @@ public class UserService {
     }
 
     public UserSignInResultVo getRefreshToken(HttpServletRequest request) {
-        Cookie cookie = cookieUtils.getCookie(request, "rt");
-        if (cookie == null) return UserSignInResultVo.builder().result(0).accessToken(null).build();
-        String token = cookie.getValue();
+//        Cookie cookie = cookieUtils.getCookie(request, "rt");
+        Optional<String> opRt = cookieUtils.getCookie(request, "rt").map(Cookie::getValue);
+
+        if (opRt.isEmpty()) return UserSignInResultVo.builder().result(0).accessToken(null).build();
+        String token = opRt.get();
         MyUserDetails myUserDetails = (MyUserDetails) jwtTokenProvider.getUserDetailsFromToken(token);
         MyPrincipal myPrincipal = myUserDetails.getMyPrincipal();
 

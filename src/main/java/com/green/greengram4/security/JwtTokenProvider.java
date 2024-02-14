@@ -177,8 +177,9 @@ public class JwtTokenProvider {
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
-
-        return new MyUserDetails(myPrincipal);
+        MyUserDetails myUserDetails = new MyUserDetails();
+        myUserDetails.setMyPrincipal(myPrincipal);
+        return myUserDetails;
 
     }
 }

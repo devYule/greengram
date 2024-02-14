@@ -4,15 +4,16 @@
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.green.greengram4.user.UserMapper">
     <insert id="signup" useGeneratedKeys="true" keyProperty="iuser">
-        insert into t_user (uid, upw, nm, pic)
-        values (#{uid}, #{upw}, #{nm}, #{pic})
+        insert into t_user (uid, upw, nm, pic, role, provider_type)
+        values (#{uid}, #{upw}, #{nm}, #{pic}, #{role}, #{providerType})
     </insert>
 
     <select id="getUserLoginInfo">
-        select iuser, uid, upw, nm, pic, created_at as createdAt, updated_at as updatedAt, firebase_token as firebaseToken
+        select iuser, uid, upw, nm, pic, created_at as createdAt, updated_at as updatedAt,
+        firebase_token as firebaseToken, role
         from t_user
-        <if test=" uid != null and uid != '' ">
-            where uid = #{uid}
+        <if test=" uid != null and uid != '' and providerType != null and providerType != '' ">
+            where uid = #{uid} and PROVIDER_TYPE = #{providerType}
         </if>
         <if test="iuser > 0">
             iuser = #{iuser}

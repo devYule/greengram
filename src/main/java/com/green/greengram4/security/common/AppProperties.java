@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import java.util.List;
+
 @Getter
 @ConfigurationProperties(prefix = "app") // 해당 app 아래에 있는 속성들을 객체화 시킴
 //@ConfigurationPropertiesScan 를 Main Application 에 추가해주어야 함 (스캔)
@@ -16,6 +18,7 @@ public class AppProperties {
      */
 
     private final Jwt jwt = new Jwt();
+    private final Oauth2 oauth2 = new Oauth2();
 
     @Getter
     @Setter
@@ -35,6 +38,12 @@ public class AppProperties {
             this.refreshTokenExpiry = refreshTokenExpiry;
             this.refreshTokenCookieMaxAge = (int) (refreshTokenExpiry * 0.001);
         }
+    }
+
+    @Getter
+    @Setter
+    public static class Oauth2 {
+        private List<String> authorizedRedirectUris;
     }
 
 
