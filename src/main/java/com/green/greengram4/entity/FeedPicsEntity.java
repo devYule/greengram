@@ -14,10 +14,11 @@ public class FeedPicsEntity extends CreatedAtEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(columnDefinition = "BIGINT UNSIGNED")
     private Long ifeedPics;
 
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "ifeed")
+    @JoinColumn(name = "ifeed", nullable = false)
     private FeedEntity feedEntity;
 
     @Column(length = 2100)

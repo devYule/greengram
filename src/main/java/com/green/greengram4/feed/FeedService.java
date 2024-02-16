@@ -60,12 +60,15 @@ public class FeedService {
             storedFileNames.add(myFileUtils.transferTo(pic, target));
         }
 
-        storedFileNames.forEach(s -> {
-            FeedPicsEntity feedPicsEntity = new FeedPicsEntity();
-            feedPicsEntity.setPic(s);
-            feedPicsEntity.setFeedEntity(feedEntity);
-            feedEntity.getFeedPicsEntities().add(feedPicsEntity);
-        });
+        feedEntity.getFeedPicsEntities().addAll(storedFileNames
+                .stream()
+                .map(n -> FeedPicsEntity.builder()
+                        .pic(n)
+                        .feedEntity(feedEntity)
+                        .build()
+                )
+                .toList()
+        );
 
 
         return new InsertPicDto(feedEntity.getIfeed().intValue(), storedFileNames);
