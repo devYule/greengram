@@ -5,8 +5,6 @@ import com.green.greengram4.common.fileupload.MyFileUtils;
 import com.green.greengram4.entity.FeedEntity;
 import com.green.greengram4.entity.FeedPicsEntity;
 import com.green.greengram4.entity.UserEntity;
-import com.green.greengram4.exception.AuthErrorCode;
-import com.green.greengram4.exception.RestApiException;
 import com.green.greengram4.feed.feedcomment.FeedCommentMapper;
 import com.green.greengram4.feed.feedcomment.model.FeedCommentSelDto;
 import com.green.greengram4.feed.feedcomment.model.FeedCommentSelVo;
@@ -15,6 +13,7 @@ import com.green.greengram4.security.AuthenticationFacade;
 import com.green.greengram4.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -38,20 +37,21 @@ public class FeedService {
     private final FeedRepository feedRepository;
     private final UserRepository userRepository;
 
+
+
     @Transactional
     public InsertPicDto insertFeed(FeedInsDto feedInsDto) {
         // security 이용 iuser 값 세팅
-        UserEntity userEntity = userRepository.findById((long) authenticationFacade.getLoginUserPk())
-                .orElseThrow(() -> new RestApiException(AuthErrorCode.NEED_SIGNIN));
+        UserEntity userEntity = userRepository.getReferenceById((long) authenticationFacade.getLoginUserPk());
+//                .orElseThrow(() -> new RestApiException(AuthErrorCode.NEED_SIGNIN));
         FeedEntity feedEntity = FeedEntity.builder()
-                .user(userEntity)
+                .userEntity(userEntity)
                 .contents(feedInsDto.getContents())
                 .location(feedInsDto.getLocation())
                 .build();
         feedRepository.save(feedEntity);
 
         log.info("feedEntity.ifeed() = {}", feedEntity.getIfeed());
-
 
         // save pics
         String target = "feed/" + feedEntity.getIfeed();
@@ -69,7 +69,6 @@ public class FeedService {
                 )
                 .toList()
         );
-
 
         return new InsertPicDto(feedEntity.getIfeed().intValue(), storedFileNames);
 
@@ -102,7 +101,12 @@ public class FeedService {
 //
 //    }
 
-    public List<FeedSelResultVo> getFeeds(FeedSelectDto feedSelectDto) {
+    public List<FeedSelResultVo> getFeeds(FeedSelectDto feedSelectDto, Pageable pageable) {
+
+        List<FeedSelResultVo> list = null;
+        if (feedSelectDto.getIsFavList() == 0 && feedSelectDto.getTargetIuser() > 0) {
+            feedRepository.findAllByUserEntityOrderByIfeedDesc(null, pageable);
+        }
 
         List<FeedSelResultVo> buildResult = mapper.getFeeds(feedSelectDto);
 
@@ -121,6 +125,28 @@ public class FeedService {
         }
         return buildResult;
     }
+
+
+
+//    public List<FeedSelResultVo> getFeeds(FeedSelectDto feedSelectDto) {
+//
+//        List<FeedSelResultVo> buildResult = mapper.getFeeds(feedSelectDto);
+//
+//        FeedCommentSelDto feedCommentSelDto = new FeedCommentSelDto();
+//        feedCommentSelDto.setStartIdx(0);
+//        feedCommentSelDto.setRowCount(4);
+//        for (FeedSelResultVo aObj : buildResult) {
+//            aObj.setPics(picsMapper.getEachPics(aObj.getIfeed()));
+//            feedCommentSelDto.setIfeed(aObj.getIfeed());
+//            List<FeedCommentSelVo> comments = commentMapper.selFeedCommentAll(feedCommentSelDto);
+//            if (comments.size() == 4) {
+//                comments.remove(comments.size() - 1);
+//                aObj.setIsMoreComment(1);
+//            }
+//            aObj.setComments(comments);
+//        }
+//        return buildResult;
+//    }
 
     public ResVo delFeed(FeedDelDto feedDelDto) {
         ResVo result = new ResVo();

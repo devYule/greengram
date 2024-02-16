@@ -22,7 +22,7 @@ public class FeedEntity extends BaseEntity {
 
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "iuser", nullable = false)
-    private UserEntity user;
+    private UserEntity userEntity;
 
     @Column(length = 1000)
     private String contents;

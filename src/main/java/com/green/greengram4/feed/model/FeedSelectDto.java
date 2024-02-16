@@ -14,6 +14,7 @@ import static com.green.greengram4.common.Const.FEED_COUNT_PER_PAGE;
 @ToString
 public class FeedSelectDto {
 
+    @JsonIgnore
     @Schema(title = "페이지", defaultValue = "1")
     private int page;
     @Schema(title = "로그인 유저 PK")
