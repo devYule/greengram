@@ -2,7 +2,7 @@ package com.green.greengram4.dm;
 
 
 import com.green.greengram4.dm.model.*;
-import com.green.greengram4.user.model.UserEntity;
+import com.green.greengram4.user.model.UserModel;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -26,5 +26,5 @@ public interface DmMapper {
 
     int updDmLastMsg(DmMsgInsDto dto);
 
-    UserEntity selOtherPersonByLoginUser(DmMsgInsDto dto);
+    UserModel selOtherPersonByLoginUser(DmMsgInsDto dto);
 }

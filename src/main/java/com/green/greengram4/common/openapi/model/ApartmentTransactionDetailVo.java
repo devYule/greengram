@@ -71,7 +71,7 @@ public class ApartmentTransactionDetailVo {
     public void setApartmentName(String apartmentName) {
         this.apartmentName = apartmentName;
     }
-    @JsonGetter("dealAmount")
+    @JsonGetter("areaForExclusiveUse")
     public float getAreaForExclusiveUse() {
         return areaForExclusiveUse;
     }

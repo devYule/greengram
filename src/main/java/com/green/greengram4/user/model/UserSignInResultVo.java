@@ -1,5 +1,6 @@
 package com.green.greengram4.user.model;
 
+import com.green.greengram4.entity.UserEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,8 +17,14 @@ public class UserSignInResultVo {
     private String pic;
     private String accessToken;
 
+    public void setExtra(UserModel userModel) {
+        this.iuser = userModel.getIuser();
+        this.nm = userModel.getNm();
+        this.pic = userModel.getPic();
+    }
+
     public void setExtra(UserEntity userEntity) {
-        this.iuser = userEntity.getIuser();
+        this.iuser = userEntity.getIuser().intValue();
         this.nm = userEntity.getNm();
         this.pic = userEntity.getPic();
     }

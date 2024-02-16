@@ -1,6 +1,6 @@
 package com.green.greengram4.security;
 
-import com.green.greengram4.user.model.UserEntity;
+import com.green.greengram4.user.model.UserModel;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -27,7 +27,7 @@ public class MyUserDetails implements UserDetails, OAuth2User {
      */
     private MyPrincipal myPrincipal;
     private Map<String, Object> attributes;
-    private UserEntity userEntity;
+    private UserModel userModel;
 
 
     @Override
@@ -48,12 +48,7 @@ public class MyUserDetails implements UserDetails, OAuth2User {
     // 소셜 로그인은 security 의 루틴을 따르기 때문에 null 을 리턴하면 안됨.
     @Override
     public String getUsername() {
-        if (this.userEntity != null && userEntity.getUid() != null) {
-            return userEntity.getUid();
-
-        }
-        return null;
-
+        return userModel == null ? null : userModel.getUid();
     }
 
     @Override

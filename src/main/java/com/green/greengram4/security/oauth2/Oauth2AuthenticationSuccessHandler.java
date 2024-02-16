@@ -5,7 +5,7 @@ import com.green.greengram4.security.MyPrincipal;
 import com.green.greengram4.security.MyUserDetails;
 import com.green.greengram4.security.common.AppProperties;
 import com.green.greengram4.security.common.CookieUtils;
-import com.green.greengram4.user.model.UserEntity;
+import com.green.greengram4.user.model.UserModel;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -48,7 +48,7 @@ public class Oauth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     protected String determineTargetUrl(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
         Optional<String> redirectUri = cookieUtils.getCookie(request, REDIRECT_URI_PARAM_COOKIE_NAME)
                 .map(Cookie::getValue);
-        if (redirectUri.isPresent() && hasAuthorizedRedirectUri(redirectUri.get())) {
+        if (redirectUri.isPresent() && !hasAuthorizedRedirectUri(redirectUri.get())) {
             throw new IllegalArgumentException("Sorry!, Unauthorized Redirect URI");
         }
         String targetUrl = redirectUri.orElse(getDefaultTargetUrl()); // defaultTargetUrl = "/"
@@ -65,15 +65,15 @@ public class Oauth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         cookieUtils.deleteCookie(response, "rt");
         cookieUtils.setCookie(response, "rt", rt, rtCookieMax);
 
-        UserEntity userEntity = myUserDetails.getUserEntity();
+        UserModel userModel = myUserDetails.getUserModel();
 
 
         return UriComponentsBuilder.fromUriString(targetUrl)
                 .queryParam("access_token", at)
-                .queryParam("iuser", userEntity.getIuser())
-                .queryParam("nm", userEntity.getNm()).encode() // 한글일수도 있어서 인코딩 필수
-                .queryParam("pic", userEntity.getPic())
-                .queryParam("firebase_token", userEntity.getFirebaseToken())
+                .queryParam("iuser", userModel.getIuser())
+                .queryParam("nm", userModel.getNm()).encode() // 한글일수도 있어서 인코딩 필수
+                .queryParam("pic", userModel.getPic())
+                .queryParam("firebase_token", userModel.getFirebaseToken())
                 .build().toUriString();
 
     }
@@ -92,11 +92,8 @@ public class Oauth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
                 .stream()
                 .anyMatch(stringUri -> {
                     URI authorizedUri = URI.create(stringUri);
-                    if (authorizedUri.getHost().equalsIgnoreCase(clientRedirectUri.getHost()) &&
-                            authorizedUri.getPort() == clientRedirectUri.getPort()) {
-                        return true;
-                    }
-                    return false;
+                    return authorizedUri.getHost().equalsIgnoreCase(clientRedirectUri.getHost()) &&
+                            authorizedUri.getPort() == clientRedirectUri.getPort();
                 });
     }
 }

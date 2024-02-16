@@ -5,7 +5,7 @@ import com.green.greengram4.security.MyPrincipal;
 import com.green.greengram4.security.MyUserDetails;
 import com.green.greengram4.security.oauth2.SocialProviderType;
 import com.green.greengram4.user.UserMapper;
-import com.green.greengram4.user.model.UserEntity;
+import com.green.greengram4.user.model.UserModel;
 import com.green.greengram4.user.model.UserSelDto;
 import com.green.greengram4.user.model.UserSignUpEntity;
 import lombok.RequiredArgsConstructor;
@@ -45,7 +45,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
                 );
         // user 의 attribute 중 id 는 유일값, 동일 아이디 기준 동일한 값이 넘어온다.
         Oauth2UserInfo oauth2UserInfo = factory.getOauth2UserInfo(type, user.getAttributes());
-        UserEntity userLoginInfo = getUserLoginInfo(oauth2UserInfo, type);
+        UserModel userLoginInfo = getUserLoginInfo(oauth2UserInfo, type);
         if (userLoginInfo == null) {
             userLoginInfo = signupUser(oauth2UserInfo, type);
         }
@@ -58,7 +58,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
 
         return MyUserDetails
                 .builder()
-                .userEntity(userLoginInfo)
+                .userModel(userLoginInfo)
                 .attributes(user.getAttributes())
                 .myPrincipal(myPrincipal)
                 .build();
@@ -66,7 +66,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
 
     }
 
-    private UserEntity getUserLoginInfo(Oauth2UserInfo oauth2UserInfo, SocialProviderType type) {
+    private UserModel getUserLoginInfo(Oauth2UserInfo oauth2UserInfo, SocialProviderType type) {
         return mapper.getUserLoginInfo(
                 UserSelDto.builder()
                         .uid(oauth2UserInfo.getId())
@@ -74,7 +74,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
                         .build());
     }
 
-    private UserEntity signupUser(Oauth2UserInfo oauth2UserInfo, SocialProviderType type) {
+    private UserModel signupUser(Oauth2UserInfo oauth2UserInfo, SocialProviderType type) {
         UserSignUpEntity userSignUpEntity = UserSignUpEntity.builder()
                 .uid(oauth2UserInfo.getId())
                 .upw("social: " + UUID.randomUUID())
@@ -84,7 +84,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
                 .providerType(type.name())
                 .build();
         if (mapper.signup(userSignUpEntity) == 1) {
-            return UserEntity.builder()
+            return UserModel.builder()
                     .iuser(userSignUpEntity.getIuser())
                     .role(Role.USER.name())
                     .nm(userSignUpEntity.getNm())

@@ -8,7 +8,7 @@ public interface UserMapper {
 
     int signup(UserSignUpEntity userSignUpEntity);
 
-    UserEntity getUserLoginInfo(UserSelDto userSelDto);
+    UserModel getUserLoginInfo(UserSelDto userSelDto);
 
     int unfollow(UserFollowDto userFollowDto);
 

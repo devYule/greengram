@@ -46,7 +46,7 @@ public class Oauth2AuthenticationRequestBasedOnCookieRepository implements Autho
                 cookieUtils.serialize(authorizationRequest),
                 COOKIE_EXPIRE_SECONDS
         );
-        String redirectUriAfterLogin = request.getParameter(OAUTH2_AUTHORIZATION_REQUEST_COOKIE_NAME);
+        String redirectUriAfterLogin = request.getParameter(REDIRECT_URI_PARAM_COOKIE_NAME);
 
         log.info("redirectUriAfterLogin = {}", redirectUriAfterLogin);
 

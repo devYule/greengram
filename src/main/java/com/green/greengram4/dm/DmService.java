@@ -7,7 +7,7 @@ import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
 import com.green.greengram4.common.ResVo;
 import com.green.greengram4.dm.model.*;
-import com.green.greengram4.user.model.UserEntity;
+import com.green.greengram4.user.model.UserModel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -57,7 +57,7 @@ public class DmService {
         String createdAt = now.format(formatter); // 포맷 적용
 
         //상대방의 firebaseToken값 필요. 나의 pic, iuser값 필요.
-        UserEntity otherPerson = mapper.selOtherPersonByLoginUser(dto);
+        UserModel otherPerson = mapper.selOtherPersonByLoginUser(dto);
 
         try {
 
