@@ -20,7 +20,7 @@ public class FeedEntity extends BaseEntity {
     @Column(columnDefinition = "BIGINT UNSIGNED")
     private Long ifeed;
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     @JoinColumn(name = "iuser", nullable = false)
     private UserEntity userEntity;
 

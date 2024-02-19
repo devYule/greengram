@@ -17,7 +17,7 @@ public class FeedPicsEntity extends CreatedAtEntity{
     @Column(columnDefinition = "BIGINT UNSIGNED")
     private Long ifeedPics;
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     @JoinColumn(name = "ifeed", nullable = false)
     private FeedEntity feedEntity;
 
