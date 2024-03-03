@@ -10,7 +10,7 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Entity
 @Table(name = "t_feed")
@@ -36,6 +36,7 @@ public class FeedEntity extends BaseEntity {
     @BatchSize(size = 100)
     @OneToMany(mappedBy = "feedEntity", cascade = CascadeType.ALL)
     private List<FeedPicsEntity> feedPicsEntities = new ArrayList<>();
+
 
 }
 

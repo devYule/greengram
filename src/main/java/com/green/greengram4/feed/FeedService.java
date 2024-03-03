@@ -2,11 +2,9 @@ package com.green.greengram4.feed;
 
 import com.green.greengram4.common.ResVo;
 import com.green.greengram4.common.fileupload.MyFileUtils;
-import com.green.greengram4.entity.FeedEntity;
-import com.green.greengram4.entity.FeedPicsEntity;
-import com.green.greengram4.entity.UserEntity;
+import com.green.greengram4.entity.*;
 import com.green.greengram4.feed.feedcomment.FeedCommentMapper;
-import com.green.greengram4.feed.feedcomment.model.FeedCommentSelDto;
+import com.green.greengram4.feed.feedcomment.FeedCommentRepository;
 import com.green.greengram4.feed.feedcomment.model.FeedCommentSelVo;
 import com.green.greengram4.feed.model.*;
 import com.green.greengram4.security.AuthenticationFacade;
@@ -20,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @RequiredArgsConstructor
 @Service
@@ -36,7 +35,8 @@ public class FeedService {
     private final MyFileUtils myFileUtils;
     private final FeedRepository feedRepository;
     private final UserRepository userRepository;
-
+    private final FeedCommentRepository feedCommentRepository;
+    private final FeedFavRepository feedFavRepository;
 
 
     @Transactional
@@ -101,31 +101,99 @@ public class FeedService {
 //
 //    }
 
+    @Transactional
     public List<FeedSelResultVo> getFeeds(FeedSelectDto feedSelectDto, Pageable pageable) {
 
-        List<FeedSelResultVo> list = null;
-        if (feedSelectDto.getIsFavList() == 0 && feedSelectDto.getTargetIuser() > 0) {
-            feedRepository.findAllByUserEntityOrderByIfeedDesc(null, pageable);
-        }
+        long loginUserPk = authenticationFacade.getLoginUserPk();
+        feedSelectDto.setLoginIuser(loginUserPk);
 
-        List<FeedSelResultVo> buildResult = mapper.getFeeds(feedSelectDto);
+        List<FeedEntity> feedEntities = feedRepository.selFeedAll(feedSelectDto, pageable);
 
-        FeedCommentSelDto feedCommentSelDto = new FeedCommentSelDto();
-        feedCommentSelDto.setStartIdx(0);
-        feedCommentSelDto.setRowCount(4);
-        for (FeedSelResultVo aObj : buildResult) {
-            aObj.setPics(picsMapper.getEachPics(aObj.getIfeed()));
-            feedCommentSelDto.setIfeed(aObj.getIfeed());
-            List<FeedCommentSelVo> comments = commentMapper.selFeedCommentAll(feedCommentSelDto);
-            if (comments.size() == 4) {
-                comments.remove(comments.size() - 1);
-                aObj.setIsMoreComment(1);
-            }
-            aObj.setComments(comments);
-        }
-        return buildResult;
+        List<FeedPicsEntity> picList = feedRepository.selFeedPicsAll(feedEntities);
+
+//            List<Long> findIfeeds = feedFavRepository.findIfeedByIuser(loginUserPk); // my
+
+        List<FeedFavEntity> findFeedFav = feedSelectDto.getIsFavList() == 0 ?
+                feedRepository.findIfeedByIuser(feedEntities, loginUserPk) : null;
+
+
+        List<Long> ifeeds = feedEntities.stream().map(FeedEntity::getIfeed).toList();
+
+//        List<FeedComment> eachComments = feedCommentRepository.findEachComments(ifeeds); // my
+
+        List<FeedCommentSelVo> eachComments = commentMapper.findByIfeeds(ifeeds);
+
+
+        return feedEntities.stream().map(feed -> {
+            List<FeedCommentSelVo> resultComments = eachComments.stream().filter(ec -> ec.getIfeed() == feed.getIfeed()).toList();
+            return FeedSelResultVo.builder()
+                    .ifeed(feed.getIfeed().intValue())
+                    .contents(feed.getContents())
+                    .location(feed.getLocation())
+                    .createdAt(String.valueOf(feed.getCreatedAt()))
+                    .writerIuser(feed.getUserEntity().getIuser().intValue())
+                    .writerNm(feed.getUserEntity().getNm())
+                    .writerPic(feed.getUserEntity().getPic())
+                    .pics(picList.stream()
+                            .filter(pf -> Objects.equals(pf.getFeedEntity().getIfeed(), feed.getIfeed()))
+                            .map(FeedPicsEntity::getPic)
+                            .toList()
+                    )
+//                            .isFav(findIfeeds.remove(feed.getIfeed()) ? 1 : 0) // my
+                    .isFav(findFeedFav == null ? 1 : findFeedFav.stream()
+                            .anyMatch(ff -> Objects.equals(ff.getFeedEntity().getIfeed(), feed.getIfeed())) ?
+                            1 : 0)
+                    .isMoreComment(resultComments.size() > 3 ? 1 : 0)
+                    .comments(!resultComments.isEmpty() ? resultComments.subList(0, resultComments.size() - 1) : new ArrayList<>())
+//                        .comments(eachComments.stream().filter(c -> Objects.equals(c.getFeedEntity().getIfeed(), feed.getIfeed()))
+//                                .map(c -> FeedCommentSelVo.builder()
+//                                        .ifeedComment(c.getIfeedComment().intValue())
+//                                        .comment(c.getComment())
+//                                        .writerNm(c.getUserEntity().getNm())
+//                                        .writerPic(c.getUserEntity().getPic())
+//                                        .createdAt(c.getCreatedAt().toString())
+//                                        .build()
+//                                ).toList()) // my
+                    .build();
+
+
+        }).toList();
+//        return feedList.isEmpty() ?
+//                new ArrayList<>() :
+//                feedList.stream().map(feed -> {
+//
+//
+//                            List<FeedCommentSelVo> comments = feedCommentRepository.findTop4ByFeedEntity(feed)
+//                                    .stream().map(comment -> FeedCommentSelVo.builder()
+//                                            .ifeedComment(comment.getIfeedComment().intValue())
+//                                            .comment(comment.getComment())
+//                                            .writerNm(comment.getUserEntity().getNm())
+//                                            .writerIuser(comment.getUserEntity().getIuser().intValue())
+//                                            .writerPic(comment.getUserEntity().getPic())
+//                                            .createdAt(comment.getCreatedAt()
+//                                                    .format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
+//                                            .build()).toList();
+//
+//                            return FeedSelResultVo.builder()
+//                                    .ifeed(feed.getIfeed().intValue())
+//                                    .contents(feed.getContents())
+//                                    .location(feed.getLocation())
+//                                    .createdAt(feed.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
+//                                    .writerIuser(feed.getUserEntity().getIuser().intValue())
+//                                    .writerPic(feed.getUserEntity().getPic())
+//                                    .writerNm(feed.getUserEntity().getNm())
+//                                    .pics(feed.getFeedPicsEntities().stream().map(FeedPicsEntity::getPic).toList())
+//                                    .isMoreComment(comments.size() == 4 ? 1 : 0)
+//                                    .comments(comments.size() == 4 ? comments.subList(0, comments.size() - 1) : comments)
+//                                    .pics(feed.getFeedPicsEntities().stream().map(FeedPicsEntity::getPic).toList())
+//                                    .isFav(feedFavRepository.findById(FeedFavIdentity.builder()
+//                                            .ifeed(feed.getIfeed())
+//                                            .iuser((long) loginUserPk)
+//                                            .build()).isPresent() ? 1 : 0)
+//                                    .build();
+//                        }
+//                ).toList();
     }
-
 
 
 //    public List<FeedSelResultVo> getFeeds(FeedSelectDto feedSelectDto) {

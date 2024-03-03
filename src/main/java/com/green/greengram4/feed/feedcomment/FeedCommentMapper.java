@@ -13,5 +13,5 @@ public interface FeedCommentMapper {
 
     List<FeedCommentSelVo> selFeedCommentAll(FeedCommentSelDto feedCommentSelDto);
 
-
+    List<FeedCommentSelVo> findByIfeeds(List<Long> ifeeds);
 }

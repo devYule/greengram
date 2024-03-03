@@ -3,6 +3,7 @@ package com.green.greengram4.feed.model;
 
 import com.green.greengram4.feed.feedcomment.model.FeedCommentSelVo;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,6 +12,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class FeedSelResultVo {
 
     // 기본 필드
@@ -31,4 +33,8 @@ public class FeedSelResultVo {
     // 댓글 가져오기
     private List<FeedCommentSelVo> comments;
     private int isMoreComment; // 0: 댓글 더 없음, 2: 갯글 더 있음.
+
+
+//    public <R> FeedSelResultVo(Long ifeed, String contents, String location, LocalDateTime createdAt, Long iuser, String pic, Stream<R> rStream, Object o) {
+//    }
 }

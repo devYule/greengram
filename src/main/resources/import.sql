@@ -72,11 +72,15 @@ INSERT INTO `t_feed_pics` (`ifeed_pics`, `ifeed`, `pic`, `created_at`) VALUES (4
 INSERT INTO `t_feed_pics` (`ifeed_pics`, `ifeed`, `pic`, `created_at`) VALUES (47, 27, '6651435d-1b85-42d3-90c9-7246820eab7c.png', '2024-02-01 12:46:04');
 INSERT INTO `t_feed_pics` (`ifeed_pics`, `ifeed`, `pic`, `created_at`) VALUES (48, 27, 'd6e94057-5193-4792-bae9-fede6af09e8d.png', '2024-02-01 12:46:04');
 
-
 INSERT INTO `t_feed_comment` (`ifeed_comment`, `iuser`, `ifeed`, `COMMENT`, `created_at`, `updated_at`) VALUES (1, 3, 17, '크크크', '2024-01-15 17:12:19', '2024-01-15 17:12:19');
 INSERT INTO `t_feed_comment` (`ifeed_comment`, `iuser`, `ifeed`, `COMMENT`, `created_at`, `updated_at`) VALUES (2, 1, 17, '하하하', '2024-01-16 12:43:24', '2024-01-16 12:43:24');
 INSERT INTO `t_feed_comment` (`ifeed_comment`, `iuser`, `ifeed`, `COMMENT`, `created_at`, `updated_at`) VALUES (3, 1, 17, 'sdfsadfsdfsdf', '2024-01-18 10:14:27', '2024-01-18 10:14:27');
-INSERT INTO `t_feed_comment` (`ifeed_comment`, `iuser`, `ifeed`, `COMMENT`, `created_at`, `updated_at`) VALUES (4, 2, 17, 's아아아dfsdf', '2024-01-18 10:14:27', '2024-01-18 10:14:27');
-INSERT INTO `t_feed_comment` (`ifeed_comment`, `iuser`, `ifeed`, `COMMENT`, `created_at`, `updated_at`) VALUES (5, 1, 18, 'sadfsadfsdf', '2024-01-24 10:57:47', '2024-01-24 10:57:47');
-INSERT INTO `t_feed_comment` (`ifeed_comment`, `iuser`, `ifeed`, `COMMENT`, `created_at`, `updated_at`) VALUES (6, 3, 18, '퉤퉤퉤', '2024-01-18 10:14:27', '2024-01-18 10:14:27');
-INSERT INTO `t_feed_comment` (`ifeed_comment`, `iuser`, `ifeed`, `COMMENT`, `created_at`, `updated_at`) VALUES (7, 1, 18, '응????', '2024-01-18 10:14:27', '2024-01-18 10:14:27');
+INSERT INTO `t_feed_comment` (`ifeed_comment`, `iuser`, `ifeed`, `COMMENT`, `created_at`, `updated_at`) VALUES (4, 2, 17, 's아아아dfsdf-1', '2024-01-18 10:14:27', '2024-01-18 10:14:27');
+INSERT INTO `t_feed_comment` (`ifeed_comment`, `iuser`, `ifeed`, `COMMENT`, `created_at`, `updated_at`) VALUES (5, 2, 17, 's아아아dfsdf-2', '2024-01-18 10:14:27', '2024-01-18 10:14:27');
+INSERT INTO `t_feed_comment` (`ifeed_comment`, `iuser`, `ifeed`, `COMMENT`, `created_at`, `updated_at`) VALUES (6, 2, 17, 's아아아dfsdf-3', '2024-01-18 10:14:27', '2024-01-18 10:14:27');
+INSERT INTO `t_feed_comment` (`ifeed_comment`, `iuser`, `ifeed`, `COMMENT`, `created_at`, `updated_at`) VALUES (7, 1, 18, 'sadfsadfsdf', '2024-01-24 10:57:47', '2024-01-24 10:57:47');
+INSERT INTO `t_feed_comment` (`ifeed_comment`, `iuser`, `ifeed`, `COMMENT`, `created_at`, `updated_at`) VALUES (8, 3, 18, '퉤퉤퉤', '2024-01-18 10:14:27', '2024-01-18 10:14:27');
+INSERT INTO `t_feed_comment` (`ifeed_comment`, `iuser`, `ifeed`, `COMMENT`, `created_at`, `updated_at`) VALUES (9, 1, 18, '응????', '2024-01-18 10:14:27', '2024-01-18 10:14:27');
+INSERT INTO `t_feed_comment` (`ifeed_comment`, `iuser`, `ifeed`, `COMMENT`, `created_at`, `updated_at`) VALUES (10, 1, 16, 'ㅎㅎㅎㅎ', '2024-01-18 10:14:27', '2024-01-18 10:14:27');
+
+insert into t_feed_fav (ifeed, iuser, created_at) values (20, 1, '2024-02-22:00:00:00')
